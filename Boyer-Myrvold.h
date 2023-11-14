@@ -108,21 +108,21 @@ private:
         }
     }
 
-    void dfs(int i, int time, int &maxLowPoint, bool *mark)
+    void dfs(int i, int &time, int &maxLowPoint, bool *mark)
     {
         time++;
         V[i].dfsNumber = time;
         V[i].lowpoint = time;
-        mark[i]=true;
+        mark[i] = true;
         updateMaxLowPoint(maxLowPoint, V[i].lowpoint);
-        for (size_t j = 0; j < V[i].adj.capacity(); j++)
+        for (size_t j = 0; j < V[i].adj.size(); j++)
         {
             if (V[i].adj[j]->dfsNumber == 0)
             {
                 V[i].adj[j]->dfsParent = &V[i];
                 V[i].adj[j]->leastAnchestor = V[i].dfsNumber;
                 V[i].adj[j]->isDFSRoot = false;
-                dfs(V[i].adj[j]->key, time, maxLowPoint,mark);
+                dfs(V[i].adj[j]->key, time, maxLowPoint, mark);
                 V[i].lowpoint = min(V[i].lowpoint, V[V[i].adj[j]->key].lowpoint);
                 updateMaxLowPoint(maxLowPoint, V[i].lowpoint);
             }
@@ -130,10 +130,11 @@ private:
             {
                 V[i].lowpoint = min(V[i].lowpoint, V[V[i].adj[j]->key].dfsNumber); // esamina i back-edge o cross-edge da v a u
                 updateMaxLowPoint(maxLowPoint, V[i].lowpoint);
-                if(mark[V[i].adj[j]->key]) V[i].adj[j]->incidentBackEdges.push_back(&V[i]); //isBackEdge
+                if (mark[V[i].adj[j]->key])
+                    V[i].adj[j]->incidentBackEdges.push_back(&V[i]); // isBackEdge
             }
         }
-        mark[i]=false;
+        mark[i] = false;
         reverseDFSOrder.push_back(&V[i]);
     }
     // dimostrazione funzionamento algoritmo per il calcolo dei lowpoints pagina 5 "https://www.cs.cmu.edu/~15451-f17/lectures/lec11-DFS-strong-components.pdf"
@@ -145,17 +146,17 @@ public:
     void DfsTrasversal()
     {
         int maxLowPoint = INT32_MIN;
-        bool *mark = new bool[n]; 
-        for (size_t i = 0; i < n; i++){
+        bool *mark = new bool[n];
+        for (size_t i = 0; i < n; i++)
+        {
             V[i].dfsNumber = 0;
-            mark[i]=false;
+            mark[i] = false;
         }
-            
-
+        int time = 0;
         for (size_t i = 0; i < n; i++)
         {
             if (V[i].dfsNumber == 0)
-                dfs(i, 0, maxLowPoint, mark);
+                dfs(i, time, maxLowPoint, mark);
         }
         computeSeparatedDfsChildLists(maxLowPoint);
     }
@@ -202,13 +203,14 @@ private:
             } while (v->separatedDfsChildList.isFirst(tmp));
         }
     }
-    void walkup(Vertex *v, Vertex *w){
-        //TODO
+    void walkup(Vertex *v, Vertex *w)
+    {
+        // TODO
     }
-    void walkdown(Vertex *v, Vertex *w){
-        //TODO
+    void walkdown(Vertex *v, Vertex *w)
+    {
+        // TODO
     }
-
 
 public:
     bool isPlanar()
@@ -217,14 +219,20 @@ public:
         {
             embedTreeEdgesOfDFSChildren(v);
 
-            for(Vertex* u : v->incidentBackEdges){
-                walkup(v,w);
+            for (Vertex *u : v->incidentBackEdges)
+            {
+                walkup(v, u);
             }
 
-            for(Vertex* u : v->separatedDfsChildList){
-                walkdown(v,u);
+            if (v->separatedDfsChildList.count > 0)
+            {
+                List_Node<Vertex *> *u = v->separatedDfsChildList.head;
+                do
+                {
+                    walkdown(v,u->data);
+                    u=u->next;
+                } while (v->separatedDfsChildList.isFirst(u));
             }
-            
         }
         return true;
     }

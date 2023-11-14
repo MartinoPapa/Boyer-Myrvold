@@ -63,4 +63,8 @@ public:
     bool isFirst(List_Node<T>* node){
         return node == head;
     }
+
+    bool hasNext(List_Node<T>* node){
+        return node->next!=head;
+    }
 };
