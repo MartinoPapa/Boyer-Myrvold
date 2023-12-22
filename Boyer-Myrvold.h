@@ -224,6 +224,7 @@ public:
                 walkup(v, u);
             }
 
+            // in dubbio se usare questa o tutti i child
             if (v->separatedDfsChildList.count > 0)
             {
                 List_Node<Vertex *> *u = v->separatedDfsChildList.head;
